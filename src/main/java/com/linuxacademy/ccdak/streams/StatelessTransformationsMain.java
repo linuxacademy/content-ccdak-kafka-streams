@@ -8,15 +8,12 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 
-/*import java.util.Properties;
-import java.util.concurrent.CountDownLatch;*/
-
 public class StatelessTransformationsMain {
 
     public static void main(String[] args) {
         // Set up the configuration.
         final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "inventory-data");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "stateless-transformations-example");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         // Since the input topic uses Strings for both key and value, set the default Serdes to String.
@@ -35,7 +32,7 @@ public class StatelessTransformationsMain {
         final CountDownLatch latch = new CountDownLatch(1);
 
         // Attach a shutdown handler to catch control-c and terminate the application gracefully.
-        Runtime.getRuntime().addShutdownHook(new Thread("streams-wordcount-shutdown-hook") {
+        Runtime.getRuntime().addShutdownHook(new Thread("streams-shutdown-hook") {
             @Override
             public void run() {
                 streams.close();
