@@ -37,7 +37,7 @@ public class AggregationsMain {
             () -> 0,
             (aggKey, newValue, aggValue) -> aggValue + newValue.length(),
             Materialized.with(Serdes.String(), Serdes.Integer()));
-        aggregatedTable.toStream().to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
+        aggregatedTable.toStream().peek((key, value) -> System.out.println("key=" + key + ", value=" + value)).to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
         
 //        // Count the number of records for each key.
 //        KTable<String, Long> countedTable = groupedStream.count(Materialized.with(Serdes.String(), Serdes.Long()));
