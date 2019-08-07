@@ -32,13 +32,20 @@ public class AggregationsMain {
         // Group the source stream by the existing Key.
         KGroupedStream<String, String> groupedStream = source.groupByKey();
         
-        //Create an aggregation that totals the length in characters of the value for all records sharing the same key.
-        KTable<String, Integer> aggregatedStream = groupedStream.aggregate(
+        // Create an aggregation that totals the length in characters of the value for all records sharing the same key.
+        KTable<String, Integer> aggregatedTable = groupedStream.aggregate(
             () -> 0,
             (aggKey, newValue, aggValue) -> aggValue + newValue.length(),
             Materialized.with(Serdes.String(), Serdes.Integer()));
-        aggregatedStream.toStream().to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
+        aggregatedTable.toStream().to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
         
+        // Count the number of records for each key.
+        KTable<String, Long> countedTable = groupedStream.count(Materialized.with(Serdes.String(), Serdes.Long()));
+        countedTable.toStream().to("aggregations-output-count-topic", Produced.with(Serdes.String(), Serdes.Long()));
+        
+        // Count the number of records for each key.
+        KTable<String, String> reducedTable = groupedStream.reduce((aggValue, newValue) -> aggValue + " " + newValue);
+        reducedTable.toStream().to("aggregations-output-reduce-topic");
         
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
