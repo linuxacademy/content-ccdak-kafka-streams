@@ -34,7 +34,8 @@ public class AggregationsMain {
         //Create an aggregation that totals the length in characters of the value for all records sharing the same key.
         KTable<String, Integer> aggregatedStream = groupedStream.aggregate(
             () -> 0,
-            (aggKey, newValue, aggValue) -> aggValue + newValue.length());
+            (aggKey, newValue, aggValue) -> aggValue + newValue.length(),
+            Materialized.with(Serdes.String(), Serdes.Integer()));
         aggregatedStream.toStream().to("aggregations-output-charactercount-topic");
         
         
