@@ -43,9 +43,9 @@ public class AggregationsMain {
         KTable<String, Long> countedTable = groupedStream.count(Materialized.with(Serdes.String(), Serdes.Long()));
         countedTable.toStream().to("aggregations-output-count-topic", Produced.with(Serdes.String(), Serdes.Long()));
 //        
-//        // Count the number of records for each key.
-//        KTable<String, String> reducedTable = groupedStream.reduce((aggValue, newValue) -> aggValue + " " + newValue);
-//        reducedTable.toStream().to("aggregations-output-reduce-topic");
+        // Count the number of records for each key.
+        KTable<String, String> reducedTable = groupedStream.reduce((aggValue, newValue) -> aggValue + " " + newValue);
+        reducedTable.toStream().to("aggregations-output-reduce-topic");
         
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
