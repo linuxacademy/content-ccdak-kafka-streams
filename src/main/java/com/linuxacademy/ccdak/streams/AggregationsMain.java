@@ -11,6 +11,7 @@ import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
 
 public class AggregationsMain {
 
@@ -36,7 +37,7 @@ public class AggregationsMain {
             () -> 0,
             (aggKey, newValue, aggValue) -> aggValue + newValue.length(),
             Materialized.with(Serdes.String(), Serdes.Integer()));
-        aggregatedStream.toStream().to("aggregations-output-charactercount-topic");
+        aggregatedStream.toStream().to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
         
         
         final Topology topology = builder.build();
