@@ -7,6 +7,10 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.KGroupedStream;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
 
 public class AggregationsMain {
 
@@ -22,8 +26,17 @@ public class AggregationsMain {
 
         // Get the source stream.
         final StreamsBuilder builder = new StreamsBuilder();
+        final KStream<String, String> source = builder.stream("aggregations-input-topic");
         
-        //Implement streams logic.
+        // Group the source stream by the existing Key.
+        KGroupedStream<String, String> groupedStream = source.groupByKey();
+        
+        //Create an aggregation that totals the length in characters of the value for all records sharing the same key.
+        KTable<String, Integer> aggregatedStream = groupedStream.aggregate(
+            () -> 0,
+            (aggKey, newValue, aggValue) -> aggValue + newValue.length());
+        aggregatedStream.toStream().to("aggregations-output-charactercount-topic");
+        
         
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
