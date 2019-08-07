@@ -27,9 +27,7 @@ public class AggregationsMain {
 
         // Get the source stream.
         final StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> source = builder.stream("aggregations-input-topic2");
-        
-        source = source.peek((key, value) -> System.out.println("key=" + key + ", value=" + value));
+        KStream<String, String> source = builder.stream("aggregations-input-topic");
         
         // Group the source stream by the existing Key.
         KGroupedStream<String, String> groupedStream = source.groupByKey();
@@ -39,7 +37,7 @@ public class AggregationsMain {
             () -> 0,
             (aggKey, newValue, aggValue) -> aggValue + newValue.length(),
             Materialized.with(Serdes.String(), Serdes.Integer()));
-        aggregatedTable.toStream().peek((key, value) -> System.out.println("key=" + key + ", value=" + value)).to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
+        aggregatedTable.toStream().to("aggregations-output-charactercount-topic", Produced.with(Serdes.String(), Serdes.Integer()));
         
 //        // Count the number of records for each key.
 //        KTable<String, Long> countedTable = groupedStream.count(Materialized.with(Serdes.String(), Serdes.Long()));
