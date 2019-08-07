@@ -38,10 +38,10 @@ public class StatelessTransformationsMain {
         KStream<String, String> othersStream = branches[1];
         
         // Remove any records from the "a" stream where the value does not also start with "a".
-        aKeysStream.filter((key, value) -> value.startsWith("a"));
+        aKeysStream = aKeysStream.filter((key, value) -> value.startsWith("a"));
         
         // For the "a" stream, convert each record into two records, one with an uppercased value and one with a lowercased value.
-        aKeysStream.flatMap((key, value) -> {
+        aKeysStream = aKeysStream.flatMap((key, value) -> {
             List<KeyValue<String, String>> result = new LinkedList<>();
             result.add(KeyValue.pair(key, value.toUpperCase()));
             result.add(KeyValue.pair(key, value.toLowerCase()));
@@ -49,13 +49,13 @@ public class StatelessTransformationsMain {
         });
         
         // For the "a" stream, modify all records by uppercasing the key.
-        aKeysStream.map((key, value) -> KeyValue.pair(key.toUpperCase(), value));
+        aKeysStream = aKeysStream.map((key, value) -> KeyValue.pair(key.toUpperCase(), value));
         
         //Merge the two streams back together.
         KStream<String, String> mergedStream = aKeysStream.merge(othersStream);
         
         //Print each record to the console.
-        mergedStream.peek((key, value) -> System.out.println("key=" + key + ", value=" + value));
+        mergedStream = mergedStream.peek((key, value) -> System.out.println("key=" + key + ", value=" + value));
         
         //Output the transformed data to a topic.
         mergedStream.to("stateless-transformations-output-topic");
