@@ -27,7 +27,9 @@ public class AggregationsMain {
 
         // Get the source stream.
         final StreamsBuilder builder = new StreamsBuilder();
-        final KStream<String, String> source = builder.stream("aggregations-input-topic");
+        KStream<String, String> source = builder.stream("aggregations-input-topic");
+        
+        source = source.peek((key, value) -> System.out.println("key=" + key + ", value=" + value));
         
         // Group the source stream by the existing Key.
         KGroupedStream<String, String> groupedStream = source.groupByKey();
