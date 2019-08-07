@@ -3,6 +3,7 @@ package com.linuxacademy.ccdak.streams;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -11,9 +12,11 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KGroupedStream;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindowedKStream;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.kstream.WindowedSerdes;
 
 public class WindowingMain {
 
@@ -38,7 +41,7 @@ public class WindowingMain {
         
         // Combine the values of all records with the same key into a string separated by spaces, using 10-second windows.
         KTable<Windowed<String>, String> reducedTable = windowedStream.reduce((aggValue, newValue) -> aggValue + " " + newValue);
-        reducedTable.toStream().to("windowing-output-topic");
+        reducedTable.toStream().to("windowing-output-topic", Produced.with(WindowedSerdes.timeWindowedSerdeFrom(String.class), Serdes.String()));
         
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
