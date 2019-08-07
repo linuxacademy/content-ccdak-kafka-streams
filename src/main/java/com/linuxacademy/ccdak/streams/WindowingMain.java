@@ -3,7 +3,6 @@ package com.linuxacademy.ccdak.streams;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
