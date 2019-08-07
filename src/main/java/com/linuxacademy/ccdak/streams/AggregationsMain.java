@@ -42,7 +42,7 @@ public class AggregationsMain {
         // Count the number of records for each key.
         KTable<String, Long> countedTable = groupedStream.count(Materialized.with(Serdes.String(), Serdes.Long()));
         countedTable.toStream().to("aggregations-output-count-topic", Produced.with(Serdes.String(), Serdes.Long()));
-//        
+        
         // Combine the values of all records with the same key into a string separated by spaces.
         KTable<String, String> reducedTable = groupedStream.reduce((aggValue, newValue) -> aggValue + " " + newValue);
         reducedTable.toStream().to("aggregations-output-reduce-topic");
