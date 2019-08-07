@@ -1,5 +1,6 @@
 package com.linuxacademy.ccdak.streams;
 
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.kafka.common.serialization.Serdes;
@@ -7,6 +8,8 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.JoinWindows;
+import org.apache.kafka.streams.kstream.KStream;
 
 public class JoinsMain {
 
@@ -22,8 +25,26 @@ public class JoinsMain {
 
         // Get the source stream.
         final StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> left = builder.stream("joins-input-topic-left");
+        KStream<String, String> right = builder.stream("joins-input-topic-right");
         
-        //Implement streams logic.
+        KStream<String, String> innerJoined = left.join(
+            right,
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            JoinWindows.of(Duration.ofMinutes(5)));
+        innerJoined.to("inner-join-output-topic");
+        
+        KStream<String, String> leftJoined = left.leftJoin(
+            right,
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            JoinWindows.of(Duration.ofMinutes(5)));
+        leftJoined.to("left-join-output-topic");
+        
+        KStream<String, String> outerJoined = left.outerJoin(
+            right,
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            JoinWindows.of(Duration.ofMinutes(5)));
+        outerJoined.to("outer-join-output-topic");
         
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
