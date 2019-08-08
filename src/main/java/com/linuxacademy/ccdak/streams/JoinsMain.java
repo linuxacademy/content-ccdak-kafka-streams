@@ -27,25 +27,28 @@ public class JoinsMain {
         final StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> left = builder.stream("joins-input-topic-left");
         KStream<String, String> right = builder.stream("joins-input-topic-right");
-        
+
+        // Perform an inner join.
         KStream<String, String> innerJoined = left.join(
             right,
-            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue,
             JoinWindows.of(Duration.ofMinutes(5)));
         innerJoined.to("inner-join-output-topic");
-        
+
+        // Perform a left join.
         KStream<String, String> leftJoined = left.leftJoin(
             right,
-            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue,
             JoinWindows.of(Duration.ofMinutes(5)));
         leftJoined.to("left-join-output-topic");
-        
+
+        // Perform an outer join.
         KStream<String, String> outerJoined = left.outerJoin(
             right,
-            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue, /* ValueJoiner */
+            (leftValue, rightValue) -> "left=" + leftValue + ", right=" + rightValue,
             JoinWindows.of(Duration.ofMinutes(5)));
         outerJoined.to("outer-join-output-topic");
-        
+
         final Topology topology = builder.build();
         final KafkaStreams streams = new KafkaStreams(topology, props);
         // Print the topology to the console.
